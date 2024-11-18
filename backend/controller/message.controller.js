@@ -1,4 +1,4 @@
-import conversation from '../models/convo.model.js'
+import Conversation from '../models/convo.model.js'
 import Message from '../models/message.model.js'
 
 
@@ -28,11 +28,35 @@ export const sendMessage = async (req, res) => {
             Conversation.messages.push(newMessage._id)
         }
 
+
+        //Socket.io functions here. Later
+
+
+        //optimize version 
+        await Promise.all([Conversation.save(), newMessage.save()])
+
         res.status(201).json(newMessage); 
 
 
     } catch (error) {
-        console.log("error in message.Controller controller", error.message)
+        console.log("error in message.Controller sendMessage controller", error.message)
+        res.status(500).json({error: "Internal Server error"});
+    }
+}
+
+export const getMessages = async (req, res) => { 
+    try {
+        const {id:userToChatId} = req.params;
+        const senderId = req.user._id;
+
+        const conversation = await Conversation.findOne({
+            participants: {$all: [senderId, userToChatId]},
+        }).populate("messages");
+
+        res.status(200).json(conversation.messages)
+
+    } catch (error) {
+        console.log("error in message.Controller getMessage controller", error.message)
         res.status(500).json({error: "Internal Server error"});
     }
 }

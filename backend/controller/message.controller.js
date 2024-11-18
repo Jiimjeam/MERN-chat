@@ -1,4 +1,4 @@
-import Conversation from '../models/convo.model.js'
+import conversation from '../models/convo.model.js'
 import Message from '../models/message.model.js'
 
 
@@ -49,11 +49,11 @@ export const getMessages = async (req, res) => {
         const {id:userToChatId} = req.params;
         const senderId = req.user._id;
 
-        const conversation = await Conversation.findOne({
+        const Conversation = await conversation.findOne({
             participants: {$all: [senderId, userToChatId]},
         }).populate("messages");
 
-        res.status(200).json(conversation.messages)
+        res.status(200).json(Conversation.messages)
 
     } catch (error) {
         console.log("error in message.Controller getMessage controller", error.message)
